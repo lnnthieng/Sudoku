@@ -2,12 +2,11 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.Random;
 import java.util.Collections;
 import java.util.List;
 import java.util.ArrayList;
+import javax.sound.sampled.*;
 
 public class SudokuGame extends JFrame {
     private static final int SIZE = 9;
@@ -16,7 +15,8 @@ public class SudokuGame extends JFrame {
     private int[][] puzzle = new int[SIZE][SIZE];
     private int lives = 3;
     private JLabel livesLabel;
-    private String difficulty = "Medium"; // Default difficulty
+    private String difficulty = "Medium";
+    private Clip backgroundMusic;
 
     public SudokuGame() {
         setTitle("Sudoku Game");
@@ -24,29 +24,24 @@ public class SudokuGame extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
-        // Top panel for lives and difficulty
         JPanel topPanel = new JPanel(new BorderLayout());
         livesLabel = new JLabel("Lives: " + lives);
         livesLabel.setFont(new Font("Arial", Font.BOLD, 16));
         topPanel.add(livesLabel, BorderLayout.WEST);
 
-        // Difficulty section with better styling
         JPanel difficultyPanel = new JPanel();
-        difficultyPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 10, 5));  // Added margin for spacing
+        difficultyPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 10, 5));
         difficultyPanel.setBorder(BorderFactory.createTitledBorder("Select Difficulty"));
 
         JComboBox<String> difficultyBox = new JComboBox<>(new String[]{"Easy", "Medium", "Hard"});
         difficultyBox.setSelectedItem(difficulty);
-        difficultyBox.setFont(new Font("Arial", Font.PLAIN, 14));  // Increased font size
-        difficultyBox.addActionListener(e -> {
-            difficulty = (String) difficultyBox.getSelectedItem();
-        });
+        difficultyBox.setFont(new Font("Arial", Font.PLAIN, 14));
+        difficultyBox.addActionListener(e -> difficulty = (String) difficultyBox.getSelectedItem());
 
         difficultyPanel.add(new JLabel("Difficulty: "));
         difficultyPanel.add(difficultyBox);
 
         topPanel.add(difficultyPanel, BorderLayout.CENTER);
-
         add(topPanel, BorderLayout.NORTH);
 
         JPanel gridPanel = new JPanel(new GridLayout(SIZE, SIZE));
@@ -108,6 +103,19 @@ public class SudokuGame extends JFrame {
 
         generateSudoku();
         setVisible(true);
+
+        startBackgroundMusic();
+    }
+
+    private void startBackgroundMusic() {
+        try {
+            AudioInputStream audioStream = AudioSystem.getAudioInputStream(getClass().getResource("/background_music.wav"));
+            backgroundMusic = AudioSystem.getClip();
+            backgroundMusic.open(audioStream);
+            backgroundMusic.loop(Clip.LOOP_CONTINUOUSLY);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void generateSudoku() {
