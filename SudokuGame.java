@@ -16,17 +16,37 @@ public class SudokuGame extends JFrame {
     private int[][] puzzle = new int[SIZE][SIZE];
     private int lives = 3;
     private JLabel livesLabel;
+    private String difficulty = "Medium"; // Default difficulty
 
     public SudokuGame() {
         setTitle("Sudoku Game");
-        setSize(600, 650);
+        setSize(600, 700);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
-        JPanel topPanel = new JPanel();
+        // Top panel for lives and difficulty
+        JPanel topPanel = new JPanel(new BorderLayout());
         livesLabel = new JLabel("Lives: " + lives);
         livesLabel.setFont(new Font("Arial", Font.BOLD, 16));
-        topPanel.add(livesLabel);
+        topPanel.add(livesLabel, BorderLayout.WEST);
+
+        // Difficulty section with better styling
+        JPanel difficultyPanel = new JPanel();
+        difficultyPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 10, 5));  // Added margin for spacing
+        difficultyPanel.setBorder(BorderFactory.createTitledBorder("Select Difficulty"));
+
+        JComboBox<String> difficultyBox = new JComboBox<>(new String[]{"Easy", "Medium", "Hard"});
+        difficultyBox.setSelectedItem(difficulty);
+        difficultyBox.setFont(new Font("Arial", Font.PLAIN, 14));  // Increased font size
+        difficultyBox.addActionListener(e -> {
+            difficulty = (String) difficultyBox.getSelectedItem();
+        });
+
+        difficultyPanel.add(new JLabel("Difficulty: "));
+        difficultyPanel.add(difficultyBox);
+
+        topPanel.add(difficultyPanel, BorderLayout.CENTER);
+
         add(topPanel, BorderLayout.NORTH);
 
         JPanel gridPanel = new JPanel(new GridLayout(SIZE, SIZE));
@@ -69,22 +89,14 @@ public class SudokuGame extends JFrame {
         }
 
         JButton solveButton = new JButton("Solve Puzzle");
-        solveButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                completeBoard();
-            }
-        });
+        solveButton.addActionListener(e -> completeBoard());
 
         JButton newGameButton = new JButton("New Game");
-        newGameButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                generateSudoku();
-                updateCells();
-                lives = 3;
-                updateLivesLabel();
-            }
+        newGameButton.addActionListener(e -> {
+            generateSudoku();
+            updateCells();
+            lives = 3;
+            updateLivesLabel();
         });
 
         JPanel buttonPanel = new JPanel();
@@ -100,7 +112,13 @@ public class SudokuGame extends JFrame {
 
     private void generateSudoku() {
         fillGrid();
-        createPuzzle(40);
+        int cellsToRemove = switch (difficulty) {
+            case "Easy" -> 30;
+            case "Medium" -> 40;
+            case "Hard" -> 50;
+            default -> 40;
+        };
+        createPuzzle(cellsToRemove);
         updateCells();
     }
 
