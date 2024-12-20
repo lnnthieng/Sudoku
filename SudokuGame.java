@@ -250,7 +250,16 @@ public class SudokuGame extends JFrame {
 
     private void gameOver() {
         JOptionPane.showMessageDialog(this, "Game Over! You've run out of lives.");
-        System.exit(0);
+
+        int option = JOptionPane.showConfirmDialog(this, "Would you like to play again?", "Game Over", JOptionPane.YES_NO_OPTION);
+        if (option == JOptionPane.YES_OPTION) {
+            lives = 3;
+            updateLivesLabel();
+            generateSudoku();
+            updateCells();
+        } else {
+            System.exit(0);
+        }
     }
 
     public static void main(String[] args) {
