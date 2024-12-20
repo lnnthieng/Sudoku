@@ -13,17 +13,16 @@ public class SudokuGame extends JFrame {
     private static final int SIZE = 9;
     private JTextField[][] cells = new JTextField[SIZE][SIZE];
     private int[][] solution = new int[SIZE][SIZE];
-    private int[][] puzzle = new int[SIZE][SIZE]; // Separate grid for the puzzle
-    private int lives = 3; // Number of lives
-    private JLabel livesLabel; // Label to display remaining lives
+    private int[][] puzzle = new int[SIZE][SIZE];
+    private int lives = 3;
+    private JLabel livesLabel;
 
     public SudokuGame() {
         setTitle("Sudoku Game");
-        setSize(600, 650); // Adjust height to fit the lives display
+        setSize(600, 650);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
-        // Top panel for lives display
         JPanel topPanel = new JPanel();
         livesLabel = new JLabel("Lives: " + lives);
         livesLabel.setFont(new Font("Arial", Font.BOLD, 16));
@@ -32,7 +31,6 @@ public class SudokuGame extends JFrame {
 
         JPanel gridPanel = new JPanel(new GridLayout(SIZE, SIZE));
 
-        // Initialize cells
         for (int row = 0; row < SIZE; row++) {
             for (int col = 0; col < SIZE; col++) {
                 final int r = row;
@@ -42,14 +40,12 @@ public class SudokuGame extends JFrame {
                 cells[row][col].setHorizontalAlignment(JTextField.CENTER);
                 cells[row][col].setFont(new Font("Arial", Font.BOLD, 20));
 
-                // Add borders for 3x3 subgrids
                 int top = (row % 3 == 0) ? 2 : 1;
                 int left = (col % 3 == 0) ? 2 : 1;
                 int bottom = (row == SIZE - 1) ? 2 : 1;
                 int right = (col == SIZE - 1) ? 2 : 1;
                 cells[row][col].setBorder(BorderFactory.createMatteBorder(top, left, bottom, right, Color.BLACK));
 
-                // Add key listener to validate input
                 cells[row][col].addKeyListener(new KeyAdapter() {
                     @Override
                     public void keyReleased(KeyEvent e) {
@@ -62,9 +58,8 @@ public class SudokuGame extends JFrame {
                     @Override
                     public void keyTyped(KeyEvent e) {
                         char ch = e.getKeyChar();
-                        // Allow only one character if it is a digit between 1 and 9
                         if (!Character.isDigit(ch) || ch == '0' || cells[r][c].getText().length() >= 1) {
-                            e.consume(); // Reject invalid input
+                            e.consume();
                         }
                     }
                 });
@@ -81,19 +76,17 @@ public class SudokuGame extends JFrame {
             }
         });
 
-        // New Game Button
         JButton newGameButton = new JButton("New Game");
         newGameButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                generateSudoku(); // Generate a new puzzle
-                updateCells(); // Refresh the UI with the new puzzle
-                lives = 3; // Reset lives
-                updateLivesLabel(); // Refresh lives display
+                generateSudoku();
+                updateCells();
+                lives = 3;
+                updateLivesLabel();
             }
         });
 
-        // Add the buttons to the frame
         JPanel buttonPanel = new JPanel();
         buttonPanel.add(solveButton);
         buttonPanel.add(newGameButton);
@@ -106,9 +99,9 @@ public class SudokuGame extends JFrame {
     }
 
     private void generateSudoku() {
-        fillGrid(); // Generate the full solution
-        createPuzzle(40); // Create the puzzle by removing numbers
-        updateCells(); // Update the UI based on the puzzle
+        fillGrid();
+        createPuzzle(40);
+        updateCells();
     }
 
     private void fillGrid() {
@@ -128,14 +121,14 @@ public class SudokuGame extends JFrame {
             col = 0;
         }
 
-        Collections.shuffle(numbers); // Shuffle numbers before placing
+        Collections.shuffle(numbers);
         for (int num : numbers) {
             if (isSafe(row, col, num)) {
                 solution[row][col] = num;
                 if (fill(row, col + 1, numbers)) {
                     return true;
                 }
-                solution[row][col] = 0; // Backtrack
+                solution[row][col] = 0;
             }
         }
         return false;
@@ -162,7 +155,6 @@ public class SudokuGame extends JFrame {
     }
 
     private void createPuzzle(int count) {
-        // Copy the solution into the puzzle array
         for (int row = 0; row < SIZE; row++) {
             System.arraycopy(solution[row], 0, puzzle[row], 0, SIZE);
         }
@@ -172,7 +164,7 @@ public class SudokuGame extends JFrame {
             int row = rand.nextInt(SIZE);
             int col = rand.nextInt(SIZE);
             if (puzzle[row][col] != 0) {
-                puzzle[row][col] = 0; // Set cell as empty in the puzzle
+                puzzle[row][col] = 0;
                 count--;
             }
         }
@@ -183,12 +175,12 @@ public class SudokuGame extends JFrame {
             for (int col = 0; col < SIZE; col++) {
                 if (puzzle[row][col] != 0) {
                     cells[row][col].setText(String.valueOf(puzzle[row][col]));
-                    cells[row][col].setEditable(false); // Make pre-filled cells uneditable
-                    cells[row][col].setBackground(new Color(224, 255, 255)); // Very light blue background for pre-filled cells
+                    cells[row][col].setEditable(false);
+                    cells[row][col].setBackground(new Color(224, 255, 255));
                 } else {
                     cells[row][col].setText("");
-                    cells[row][col].setEditable(true); // Editable if the cell is not pre-filled
-                    cells[row][col].setBackground(Color.WHITE); // White background for empty cells
+                    cells[row][col].setEditable(true);
+                    cells[row][col].setBackground(Color.WHITE);
                 }
             }
         }
@@ -196,30 +188,30 @@ public class SudokuGame extends JFrame {
 
     private void checkCellValue(int row, int col) {
         if (puzzle[row][col] != 0) {
-            return; // Skip if it's a pre-filled cell
+            return;
         }
 
-        String text = cells[row][col].getText().trim(); // Trim input
+        String text = cells[row][col].getText().trim();
         if (!text.isEmpty()) {
             try {
                 int num = Integer.parseInt(text);
-                if (num >= 1 && num <= 9) { // Validate input range
+                if (num >= 1 && num <= 9) {
                     if (num == solution[row][col]) {
-                        cells[row][col].setBackground(Color.WHITE); // Correct answer
+                        cells[row][col].setBackground(Color.WHITE);
                     } else {
-                        cells[row][col].setBackground(Color.RED); // Incorrect answer
-                        lives--; // Decrement lives on incorrect entry
-                        updateLivesLabel(); // Refresh lives display
+                        cells[row][col].setBackground(Color.RED);
+                        lives--;
+                        updateLivesLabel();
                         if (lives <= 0) {
-                            gameOver(); // Call game over method if lives are exhausted
+                            gameOver();
                         }
                     }
                 }
             } catch (NumberFormatException e) {
-                cells[row][col].setBackground(Color.WHITE); // Reset if not a number
+                cells[row][col].setBackground(Color.WHITE);
             }
         } else {
-            cells[row][col].setBackground(Color.WHITE); // Reset if empty
+            cells[row][col].setBackground(Color.WHITE);
         }
     }
 
@@ -258,7 +250,7 @@ public class SudokuGame extends JFrame {
 
     private void gameOver() {
         JOptionPane.showMessageDialog(this, "Game Over! You've run out of lives.");
-        System.exit(0); // Close the application
+        System.exit(0);
     }
 
     public static void main(String[] args) {
